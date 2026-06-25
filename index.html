@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Something I Need to Tell You</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --white: #ffffff;
+    --blush: #fce4ec;
+    --rose: #f8bbd9;
+    --petal: #f48fb1;
+    --deep-rose: #e91e8c;
+    --text-dark: #3d2b35;
+    --text-mid: #7c5d6a;
+    --text-light: #b89aa8;
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 182, 193, 0.35);
+    --shadow-soft: 0 8px 48px rgba(233, 30, 140, 0.10), 0 2px 16px rgba(233, 30, 140, 0.06);
+    --shadow-card: 0 24px 80px rgba(233, 30, 140, 0.14), 0 4px 24px rgba(233, 30, 140, 0.08);
+    --radius-card: 28px;
+    --radius-btn: 50px;
+  }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  body {
+    background: linear-gradient(135deg, #fff0f5 0%, #fce4ec 40%, #fdf2f8 70%, #fff 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 16px 16px 24px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Ambient orbs */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::before {
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, rgba(248, 187, 217, 0.28) 0%, transparent 70%);
+    top: -120px;
+    right: -120px;
+    animation: floatOrb 8s ease-in-out infinite alternate;
+  }
+
+  body::after {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(252, 228, 236, 0.4) 0%, transparent 70%);
+    bottom: -80px;
+    left: -80px;
+    animation: floatOrb 10s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes floatOrb {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(20px, 20px) scale(1.06); }
+  }
+
+  /* Particle canvas */
+  #heartCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+
+  #heartCanvas.active {
+    opacity: 1;
+  }
+
+  /* Main card */
+  .main-card {
+    position: relative;
+    z-index: 1;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(1.6);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    border: 1.5px solid var(--glass-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 52px 44px 44px;
+    max-width: 560px;
+    width: 100%;
+    animation: cardEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes cardEntrance {
+    from {
+      opacity: 0;
+      transform: translateY(40px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .card-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--petal);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 28px;
+    height: 1.5px;
+    background: var(--petal);
+    border-radius: 2px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 30px);
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 28px;
+    line-height: 1.3;
+  }
+
+  .card-title span {
+    font-style: italic;
+    color: var(--deep-rose);
+  }
+
+  .message-body {
+    color: var(--text-mid);
+    font-size: 15.5px;
+    line-height: 1.85;
+    font-weight: 300;
+  }
+
+  .message-body p {
+    margin-bottom: 14px;
+  }
+
+  .message-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .message-body .highlight {
+    color: var(--text-dark);
+    font-weight: 500;
+  }
+
+  .divider {
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--rose), var(--petal));
+    border-radius: 2px;
+    margin: 28px 0;
+  }
+
+  .btn-continue {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 32px;
+    padding: 15px 36px;
+    background: linear-gradient(135deg, var(--petal) 0%, #f06292 100%);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    box-shadow: 0 6px 28px rgba(240, 98, 146, 0.38);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-continue:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 12px 36px rgba(240, 98, 146, 0.46);
+  }
+
+  .btn-continue:active {
+    transform: scale(0.97);
+  }
+
+  .btn-continue svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    transition: transform 0.22s ease;
+  }
+
+  .btn-continue:hover svg {
+    transform: translateX(3px);
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(61, 43, 53, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Modal box */
+  .modal {
+    background: var(--glass-bg);
+    backdrop-filter: blur(32px) saturate(1.8);
+    -webkit-backdrop-filter: blur(32px) saturate(1.8);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: var(--shadow-card);
+    padding: 44px 40px 40px;
+    width: 100%;
+    max-width: 440px;
+    position: relative;
+    transform: translateY(32px) scale(0.94);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+    overflow: hidden;
+    min-height: 260px;
+  }
+
+  .modal-overlay.open .modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .modal-sub {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 13.5px;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+
+  .modal-actions {
+    position: relative;
+    height: 120px;
+    width: 100%;
+  }
+
+  /* "Yes" - the runaway button */
+  .btn-yes {
+    position: absolute;
+    padding: 13px 26px;
+    background: linear-gradient(135deg, #fce4ec, #ffd0e8);
+    color: var(--text-dark);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid var(--glass-border);
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(233, 30, 140, 0.12);
+    transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+                top 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.22s ease;
+    white-space: nowrap;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+  }
+
+  .btn-yes:hover {
+    transform: scale(0.9) rotate(-4deg);
+  }
+
+  /* "Still Chill" button */
+  .btn-chill {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 13px 26px;
+    background: linear-gradient(135deg, var(--petal) 0%, #f06292 100%);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(240, 98, 146, 0.36);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    white-space: nowrap;
+    z-index: 2;
+  }
+
+  .btn-chill:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 10px 30px rgba(240, 98, 146, 0.44);
+  }
+
+  .btn-chill:active {
+    transform: scale(0.96);
+  }
+
+  /* Success card */
+  .success-card {
+    position: relative;
+    z-index: 1;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(1.6);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    border: 1.5px solid var(--glass-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 52px 44px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    margin-top: 24px;
+    opacity: 0;
+    transform: translateY(32px) scale(0.95);
+    pointer-events: none;
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .success-card.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+  }
+
+  .success-icon {
+    font-size: 52px;
+    margin-bottom: 20px;
+    animation: pulseHeart 1.6s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  @keyframes pulseHeart {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.14); }
+  }
+
+  .success-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 14px;
+  }
+
+  .success-text {
+    font-size: 18px;
+    color: var(--text-mid);
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  .success-text strong {
+    color: var(--deep-rose);
+    font-weight: 500;
+  }
+
+  /* Top banner */
+  .top-banner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 11.5px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+
+  /* Instagram button */
+  .btn-instagram {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 22px;
+    background: linear-gradient(135deg, #f9a8d4 0%, #f472b6 50%, #e879f9 100%);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 6px 24px rgba(244, 114, 182, 0.38);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    letter-spacing: 0.01em;
+    margin-top: 8px;
+  }
+
+  .btn-instagram:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 10px 32px rgba(232, 121, 249, 0.46);
+  }
+
+  .btn-instagram:active {
+    transform: scale(0.97);
+  }
+
+  .btn-instagram svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* Success created-by line */
+  .success-credit {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 300;
+    letter-spacing: 0.06em;
+  }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  footer p {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    line-height: 1.9;
+  }
+
+  footer a {
+    color: var(--petal);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  footer a:hover {
+    color: var(--deep-rose);
+  }
+
+  /* Responsive */
+  @media (max-width: 500px) {
+    .main-card {
+      padding: 36px 24px 32px;
+    }
+
+    .modal {
+      padding: 36px 24px 32px;
+    }
+
+    .success-card {
+      padding: 40px 24px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="heartCanvas"></canvas>
+
+<!-- Top banner -->
+<div class="top-banner">Created and hosted by khan0.exe</div>
+
+<!-- Main confession card -->
+<div class="main-card" id="mainCard">
+  <div class="card-eyebrow">A message for you</div>
+  <h1 class="card-title"><span>Laurayne,</span> I want to tell you something</h1>
+
+  <div class="message-body">
+    <p>...but please don't get mad at me.</p>
+
+    <div class="divider"></div>
+
+    <p>Remember when I showed myself?</p>
+    <p><span class="highlight">That was not actually me.</span></p>
+    <p>
+      When you asked for my picture, I got nervous and made a stupid decision.
+      I took a screenshot of a random image from Google and sent it to you.
+    </p>
+    <p>I know that was wrong and I am <span class="highlight">genuinely sorry.</span></p>
+
+    <div class="divider"></div>
+
+    <p>I didn't lie about my height though — I am really <span class="highlight">5'9</span>.</p>
+    <p>I just didn't want to be judged and I panicked.</p>
+    <p>I care about our friendship and I don't want to hide the truth anymore.</p>
+  </div>
+
+  <button class="btn-continue" id="btnContinue">
+    Continue
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 12h14M13 6l6 6-6 6"/>
+    </svg>
+  </button>
+
+  <footer>
+    <p>Website designed &amp; developed by <strong style="color: var(--text-mid);">Bendaaa</strong></p>
+    <a class="btn-instagram" href="https://www.instagram.com/khan0.exe?igsh=eXhxdXBjMzBxMHc5" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+      </svg>
+      @khan0.exe
+    </a>
+  </footer>
+</div>
+
+<!-- Success card (hidden initially) -->
+<div class="success-card" id="successCard">
+  <div class="success-icon">❤️</div>
+  <div class="success-title">Thanks for understanding ❤️</div>
+  <p class="success-text"><strong>Love you &lt;3</strong></p>
+  <p class="success-credit">Created by Bendaaa</p>
+  <a class="btn-instagram" href="https://www.instagram.com/khan0.exe?igsh=eXhxdXBjMzBxMHc5" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+    </svg>
+    @khan0.exe
+  </a>
+</div>
+
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" aria-modal="true" role="dialog" aria-labelledby="modalTitle">
+  <div class="modal" id="modal">
+    <h2 class="modal-title" id="modalTitle">Are you mad at me?</h2>
+    <p class="modal-sub">Choose honestly 🤍</p>
+    <div class="modal-actions" id="modalActions">
+      <button class="btn-yes" id="btnYes">Yes 😠</button>
+      <button class="btn-chill" id="btnChill">Still Chill 😎</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const btnContinue = document.getElementById('btnContinue');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modal = document.getElementById('modal');
+  const btnYes = document.getElementById('btnYes');
+  const btnChill = document.getElementById('btnChill');
+  const successCard = document.getElementById('successCard');
+  const heartCanvas = document.getElementById('heartCanvas');
+  const mainCard = document.getElementById('mainCard');
+  const modalActions = document.getElementById('modalActions');
+
+  /* Open modal */
+  btnContinue.addEventListener('click', () => {
+    modalOverlay.classList.add('open');
+    repositionYesBtn();
+  });
+
+  /* Close modal on overlay click (not modal itself) */
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+
+  function closeModal() {
+    modalOverlay.classList.remove('open');
+  }
+
+  /* "Yes" button — runs away on hover and click */
+  function getYesBtnBounds() {
+    const containerRect = modalActions.getBoundingClientRect();
+    const btnRect = btnYes.getBoundingClientRect();
+    return {
+      maxLeft: containerRect.width - btnRect.width - 4,
+      maxTop: containerRect.height - btnRect.height - 4,
+    };
+  }
+
+  function repositionYesBtn() {
+    const { maxLeft, maxTop } = getYesBtnBounds();
+    const newLeft = Math.floor(Math.random() * Math.max(0, maxLeft));
+    const newTop = Math.floor(Math.random() * Math.max(0, maxTop));
+    btnYes.style.left = newLeft + 'px';
+    btnYes.style.top = newTop + 'px';
+  }
+
+  btnYes.addEventListener('mouseenter', repositionYesBtn);
+  btnYes.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    repositionYesBtn();
+  }, { passive: false });
+  btnYes.addEventListener('click', repositionYesBtn);
+  btnYes.addEventListener('focus', repositionYesBtn);
+
+  /* "Still Chill" — close modal and reveal success */
+  btnChill.addEventListener('click', () => {
+    closeModal();
+
+    setTimeout(() => {
+      mainCard.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      mainCard.style.opacity = '0';
+      mainCard.style.transform = 'translateY(-20px) scale(0.97)';
+      mainCard.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        mainCard.style.display = 'none';
+        successCard.classList.add('visible');
+        startHearts();
+      }, 500);
+    }, 200);
+  });
+
+  /* Heart particle system */
+  const ctx = heartCanvas.getContext('2d');
+  let particles = [];
+  let animFrame;
+
+  function resizeCanvas() {
+    heartCanvas.width = window.innerWidth;
+    heartCanvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  const HEART_EMOJIS = ['❤️', '🩷', '💗', '💖', '💝', '💕'];
+
+  class HeartParticle {
+    constructor() {
+      this.reset();
+    }
+
+    reset() {
+      this.x = Math.random() * window.innerWidth;
+      this.y = window.innerHeight + 40;
+      this.size = 14 + Math.random() * 22;
+      this.speedY = 0.8 + Math.random() * 1.4;
+      this.speedX = (Math.random() - 0.5) * 0.8;
+      this.opacity = 0.6 + Math.random() * 0.4;
+      this.wobble = Math.random() * Math.PI * 2;
+      this.wobbleSpeed = 0.02 + Math.random() * 0.03;
+      this.emoji = HEART_EMOJIS[Math.floor(Math.random() * HEART_EMOJIS.length)];
+      this.rotation = (Math.random() - 0.5) * 0.4;
+    }
+
+    update() {
+      this.y -= this.speedY;
+      this.wobble += this.wobbleSpeed;
+      this.x += Math.sin(this.wobble) * 0.7 + this.speedX;
+      if (this.y < -50) this.reset();
+    }
+
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.opacity;
+      ctx.font = `${this.size}px serif`;
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      ctx.fillText(this.emoji, -this.size / 2, this.size / 2);
+      ctx.restore();
+    }
+  }
+
+  function startHearts() {
+    heartCanvas.classList.add('active');
+    for (let i = 0; i < 36; i++) {
+      const p = new HeartParticle();
+      p.y = Math.random() * window.innerHeight;
+      particles.push(p);
+    }
+    animateHearts();
+  }
+
+  function animateHearts() {
+    ctx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    animFrame = requestAnimationFrame(animateHearts);
+  }
+</script>
+</body>
+</html>
